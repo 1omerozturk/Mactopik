@@ -1,15 +1,27 @@
 package com.ozturkomer.mactopik.Screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -31,42 +43,67 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun HomeScreen() {
+fun FixtureScreen() {
     val viewModel = MatchViewModel()
     MatchScreen(viewModel)
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MatchScreen(viewModel: MatchViewModel) {
     val matches = viewModel.matches.collectAsState().value
     val isLoading = viewModel.isLoading.collectAsState().value
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround) {
-         Text("Maçlar", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Gray, textAlign = TextAlign.Center)
-        Icon(Sports_and_outdoors,"Ball", tint = Color.Gray,
-            modifier = Modifier
-                .fillMaxWidth()
-                .size(50.dp)
-        )
+    val swipePullRefreshState = rememberPullRefreshState(
+        refreshing = isLoading,
+        onRefresh = { viewModel.fetchMatches() }
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Text(
+                "Fikstür",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4891D9),
+                textAlign = TextAlign.Center
+            )
+            Icon(
+                Sports_and_outdoors, "Ball", tint = Color(0xFF4891D9),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(50.dp)
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        if(!isLoading){
-
-        LazyColumn(modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 30.dp)) {
-            items(matches) { match ->
-                MatchCard(match)
-                Spacer(modifier = Modifier.height(12.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pullRefresh(state = swipePullRefreshState)
+        )
+        {
+            if (!isLoading) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 0.dp)
+                ) {
+                    items(matches) { match ->
+                        MatchCard(match)
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+            } else {
+                Loading()
             }
-        }
-        }
-        else{
-            Loading()
         }
     }
 }
@@ -97,27 +134,40 @@ fun MatchCard(match: Match) {
             Spacer(modifier = Modifier.width(8.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    text = match.homeTeam, fontSize = 14.sp)
+                Text(
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    text = match.homeTeam, fontSize = 14.sp
+                )
 
-                  }
+            }
 
-            Text(text = "-", fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace, color = Color.Gray)
+            Text(
+                text = "-",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace,
+                color = Color.Gray
+            )
 
 
             Spacer(modifier = Modifier.width(12.dp))
 
 
-                Image(
-                    painter = rememberAsyncImagePainter(match.awayLogo),
-                    contentDescription = "Away Logo",
-                    modifier = Modifier.size(30.dp),
-                    contentScale = ContentScale.Crop
-                )
+            Image(
+                painter = rememberAsyncImagePainter(match.awayLogo),
+                contentDescription = "Away Logo",
+                modifier = Modifier.size(30.dp),
+                contentScale = ContentScale.Crop
+            )
             Spacer(modifier = Modifier.width(8.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(maxLines = 1, overflow = TextOverflow.Ellipsis,text = match.awayTeam, fontSize = 14.sp)
+                Text(
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    text = match.awayTeam,
+                    fontSize = 14.sp
+                )
 
             }
         }
@@ -128,7 +178,7 @@ fun MatchCard(match: Match) {
 }
 
 @Composable
-fun MatchDateText(matchDate: String, matchTime: String) {
+fun MatchDateText(matchDate: String, matchTime: String = "") {
 
     // Mevcut tarih bilgisi
     val today = LocalDate.now()

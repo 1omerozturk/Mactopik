@@ -19,8 +19,8 @@ class StandingsViewModel : ViewModel() {
     val isLoading: StateFlow<Boolean> get() = _isLoading
 
     private val api = Retrofit.Builder()
-//        .baseUrl("https://back-end-z2ts.onrender.com/")
-        .baseUrl("http://192.168.137.1:5080/")
+        .baseUrl("https://superlig-api.onrender.com/")
+//        .baseUrl("http://192.168.137.1:5080/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(StandingsApi::class.java)
@@ -29,9 +29,10 @@ class StandingsViewModel : ViewModel() {
         fetchStandings()
     }
 
-    private fun fetchStandings() {
+    fun fetchStandings() {
         viewModelScope.launch {
             try {
+                _isLoading.value=true;
                 val response = api.getStandings()
                 _standings.value = response.standings
                 println(response.standings)

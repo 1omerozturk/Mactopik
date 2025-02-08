@@ -2,13 +2,26 @@ package com.ozturkomer.mactopik.Screens
 
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -27,22 +40,41 @@ import com.ozturkomer.mactopik.utils.Standing
 
 @Composable
 fun LeaderBoardScreen() {
-val viewModel=StandingsViewModel()
+    val viewModel = StandingsViewModel()
     StandingsScreen(viewModel)
 
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun StandingsScreen(viewModel: StandingsViewModel) {
     val standings = viewModel.standings.collectAsState().value
-    val isLoading=viewModel.isLoading.collectAsState().value
+    val isLoading = viewModel.isLoading.collectAsState().value
+    val swipeRefreshState = rememberPullRefreshState(
+        refreshing = isLoading,
+        onRefresh = { viewModel.fetchStandings() }
+    )
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceEvenly) {
-            Text("Puan Durumu", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Gray, textAlign = TextAlign.Center)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(5.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Text(
+                "Puan Durumu",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFB2C036),
+                textAlign = TextAlign.Center
+            )
             Icon(
-                Leaderboard,"LeaderBoard", tint = Color.Gray,
+                Leaderboard, "LeaderBoard",
+                tint = Color(0xFFB2C036),
                 modifier = Modifier
                     .fillMaxWidth()
                     .size(50.dp)
@@ -50,18 +82,26 @@ fun StandingsScreen(viewModel: StandingsViewModel) {
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        if(!isLoading){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pullRefresh(state = swipeRefreshState)
+        )
+        {
 
-        LazyColumn(modifier = Modifier.padding(bottom = 50.dp)) {
-            items(standings) { standing ->
-                StandingCard(standing)
-                Spacer(modifier = Modifier.height(8.dp))
+            if (!isLoading) {
+                LazyColumn(
+                    modifier = Modifier.padding(bottom = 0.dp)
+                ) {
+                    items(standings) { standing ->
+                        StandingCard(standing)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+
+            } else {
+                Loading()
             }
-        }
-
-        }
-        else{
-            Loading()
         }
     }
 }

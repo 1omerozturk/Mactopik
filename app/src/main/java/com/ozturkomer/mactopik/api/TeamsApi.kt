@@ -13,14 +13,14 @@ interface TeamApi {
     suspend fun getTeams(): List<Teams>
 
     // Belirli bir takımın kadrosunu alma
-    @GET("get-teams/lineup/{teamId}")
+    @GET("get-teams/lineup/{id}")
     suspend fun getTeamLineUp(
-        @Path("teamId") teamId: String
+        @Path("id") teamId: String
     ): List<Player> // Kadro için örnek bir veri sınıfı olan `Player` kullanıldı.
 
     // Belirli bir takımın fikstürünü alma
-    @GET("get-teams/fixture/{teamId}")
+    @GET("get-teams/fixture/{id}")
     suspend fun getTeamFixture(
-        @Path("teamId") teamId: String
+        @Path("id") teamId: String
     ): List<Fixture> // Fikstür için örnek bir veri sınıfı olan `Fixture` kullanıldı.
 }

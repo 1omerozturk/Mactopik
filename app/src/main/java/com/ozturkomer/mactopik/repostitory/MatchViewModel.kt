@@ -14,12 +14,12 @@ class MatchViewModel : ViewModel() {
     private val _matches = MutableStateFlow<List<Match>>(emptyList())
     val matches: StateFlow<List<Match>> get() = _matches
 
-    val _isLoading=MutableStateFlow(true)
-    val isLoading:StateFlow<Boolean> get()=_isLoading;
+    val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> get() = _isLoading;
 
     private val api = Retrofit.Builder()
-//        .baseUrl("https://back-end-z2ts.onrender.com/")
-        .baseUrl("http://192.168.137.1:5080/")
+        .baseUrl("https://superlig-api.onrender.com/")
+//        .baseUrl("http://192.168.137.1:5080/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(MatchApi::class.java)
@@ -28,16 +28,19 @@ class MatchViewModel : ViewModel() {
         fetchMatches()
     }
 
-    private fun fetchMatches() {
+    fun fetchMatches(week: String? = null) {
         viewModelScope.launch {
             try {
-                _matches.value = api.getMatches()
-                println(api.getMatches())
+                _isLoading.value = true
+                _matches.value = if (week == null) {
+                    api.getMatches()
+                } else {
+                    api.getMatchesWeek(week)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
-            }
-            finally {
-                _isLoading.value=false;
+            } finally {
+                _isLoading.value = false
             }
         }
     }

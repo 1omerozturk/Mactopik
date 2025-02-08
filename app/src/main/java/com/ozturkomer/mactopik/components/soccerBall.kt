@@ -16,6 +16,7 @@ public val Sports_and_outdoors: ImageVector
         }
         _Sports_and_outdoors = ImageVector.Builder(
             name = "Sports_and_outdoors",
+            tintColor = Color.White,
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
             viewportWidth = 960f,
