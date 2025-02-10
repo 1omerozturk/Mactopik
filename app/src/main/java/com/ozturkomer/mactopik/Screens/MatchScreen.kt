@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedButton
@@ -36,18 +36,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.ozturkomer.mactopik.components.Loading
 import com.ozturkomer.mactopik.components.Scoreboard
 import com.ozturkomer.mactopik.repostitory.MatchViewModel
 import com.ozturkomer.mactopik.utils.Match
 
-@Preview
 @Composable
-fun MatchScreen() {
+fun MatchScreen(navController: NavHostController) {
     val viewModel = MatchViewModel()
     var selectedWeek by remember { mutableStateOf<String?>(null) }
     Column(modifier = Modifier.fillMaxSize()) {
@@ -55,7 +54,7 @@ fun MatchScreen() {
             selectedWeek = week
             viewModel.fetchMatches(week)
         }
-        Matches(viewModel)
+        Matches(viewModel,navController,selectedWeek)
     }
 }
 
@@ -125,7 +124,7 @@ fun WeekInput(onWeekSelected: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Matches(viewModel: MatchViewModel) {
+fun Matches(viewModel: MatchViewModel,navController: NavHostController,selectedWeek:String?) {
     val matches = viewModel.matches.collectAsState().value
     val isLoading = viewModel.isLoading.collectAsState().value
     val swipeRefreshState = rememberPullRefreshState(
@@ -150,10 +149,7 @@ fun Matches(viewModel: MatchViewModel) {
                 Loading()
             }
         } else {
-
-            // Group matches by date
             val groupedMatches = matches.groupBy { it.date }
-
             groupedMatches.forEach { (date, matchesOnDate) ->
                 item {
                     Text(
@@ -167,16 +163,16 @@ fun Matches(viewModel: MatchViewModel) {
                             .padding(top = 10.dp)
                     )
                 }
-
-                items(matchesOnDate) { match ->
+                itemsIndexed(matchesOnDate) { index, match ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(Color.Gray)
                             .clickable {
-                                selectedMatch = match
-                                showSimulation = true
+                                selectedWeek?.let { week ->
+                                    navController.navigate("match_detail/$week/$index")
+                                }
                             }
                             .padding(8.dp)
                     ) {

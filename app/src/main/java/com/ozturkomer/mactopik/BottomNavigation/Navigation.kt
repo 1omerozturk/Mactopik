@@ -6,27 +6,26 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.ozturkomer.mactopik.Screens.FixtureScreen
-import com.ozturkomer.mactopik.Screens.LeaderBoardScreen
-import com.ozturkomer.mactopik.Screens.MatchScreen
+import com.ozturkomer.mactopik.Screens.MainScreen
+import com.ozturkomer.mactopik.Screens.MatchDetailScreen
 import com.ozturkomer.mactopik.Screens.TeamDetailScreen
-import com.ozturkomer.mactopik.Screens.TeamsScreen
-import com.ozturkomer.mactopik.Screens.TopScoresScreen
-import com.ozturkomer.mactopik.components.SplashScreen
 
 @Composable
 fun Navigation(navController: NavHostController) {
     NavHost(
         navController,
-        startDestination = BottomNavItem.Home.route
+        startDestination = "main"
     ) {
-        composable("splash") { SplashScreen(navController = navController) }
-        composable("topScorers") { TopScoresScreen() }
-        composable(BottomNavItem.Home.route) { MatchScreen() }
-        composable(BottomNavItem.LeaderBoard.route) { LeaderBoardScreen() }
-        composable(BottomNavItem.Teams.route) { TeamsScreen(navController = navController) }
-        composable(BottomNavItem.Matches.route) { FixtureScreen() }
-
+        composable("main") { MainScreen(navController) }
+        composable(
+            route = "match_detail/{week}/{id}",
+            arguments = listOf(navArgument("week") { type = NavType.IntType },
+                navArgument("id") { type = NavType.IntType }
+            )) { backStackEntry ->
+            val week = backStackEntry.arguments?.getString("week") ?: "23"
+            val id = backStackEntry.arguments?.getString("id") ?: "2"
+            MatchDetailScreen(navController, week, id)
+        }
         composable(
             route = "team_detail/{id}",
             arguments = listOf(navArgument("id") { type = NavType.StringType })

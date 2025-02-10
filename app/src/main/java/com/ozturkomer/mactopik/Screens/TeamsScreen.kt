@@ -41,9 +41,9 @@ import com.ozturkomer.mactopik.utils.Teams
 
 @Composable
 fun TeamsScreen(
-    viewModel: TeamViewModel = TeamViewModel(),
     navController: NavHostController
 ) {
+    val viewModel = TeamViewModel()
     Teams(viewModel, navController)
 }
 

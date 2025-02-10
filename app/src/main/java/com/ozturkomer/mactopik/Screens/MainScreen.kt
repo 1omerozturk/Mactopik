@@ -14,16 +14,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavHostController
 import com.ozturkomer.mactopik.BottomNavigation.BottomNavItem
 import com.ozturkomer.mactopik.BottomNavigation.BottomNavigationBar
-import com.ozturkomer.mactopik.BottomNavigation.Navigation
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen() {
-    val navController =
-        rememberNavController() // Burada tanımlıyorsun ama Navigation'a vermiyorsun!
+fun MainScreen(navController: NavHostController) {
 
     // Burada ekle!
 
@@ -42,7 +39,6 @@ fun MainScreen() {
     LaunchedEffect(pagerState.currentPage) {
         currentRoute.value = pages[pagerState.currentPage]
     }
-    Navigation(navController)
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -69,11 +65,11 @@ fun MainScreen() {
                 modifier = Modifier.fillMaxSize()
             ) { page ->
                 when (page) {
-                    0 -> MatchScreen()
+                    0 -> MatchScreen(navController)
                     1 -> LeaderBoardScreen()
                     2 -> TopScoresScreen()
                     3 -> FixtureScreen()
-                    4 -> TeamsScreen(navController = navController) // Burada navController gönderildiğinden emin ol
+                    4 -> TeamsScreen(navController) // Burada navController gönderildiğinden emin ol
                 }
             }
         }
