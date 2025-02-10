@@ -14,6 +14,10 @@ class MatchViewModel : ViewModel() {
     private val _matches = MutableStateFlow<List<Match>>(emptyList())
     val matches: StateFlow<List<Match>> get() = _matches
 
+    private val _week = MutableStateFlow(0)
+    val week: StateFlow<Int> get() = _week
+
+
     val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> get() = _isLoading;
 
@@ -36,6 +40,9 @@ class MatchViewModel : ViewModel() {
                     api.getMatches()
                 } else {
                     api.getMatchesWeek(week)
+                }
+                if (week != null) {
+                    _week.value = week.toInt()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

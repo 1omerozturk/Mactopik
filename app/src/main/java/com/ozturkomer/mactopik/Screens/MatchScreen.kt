@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedButton
@@ -54,7 +53,7 @@ fun MatchScreen(navController: NavHostController) {
             selectedWeek = week
             viewModel.fetchMatches(week)
         }
-        Matches(viewModel,navController,selectedWeek)
+        Matches(viewModel, navController)
     }
 }
 
@@ -124,8 +123,9 @@ fun WeekInput(onWeekSelected: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Matches(viewModel: MatchViewModel,navController: NavHostController,selectedWeek:String?) {
+fun Matches(viewModel: MatchViewModel, navController: NavHostController) {
     val matches = viewModel.matches.collectAsState().value
+    val week = viewModel.week.collectAsState().value
     val isLoading = viewModel.isLoading.collectAsState().value
     val swipeRefreshState = rememberPullRefreshState(
         refreshing = isLoading,
@@ -140,7 +140,8 @@ fun Matches(viewModel: MatchViewModel,navController: NavHostController,selectedW
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize().padding(5.dp)
+            .fillMaxSize()
+            .padding(5.dp)
             .background(Color.White)
             .pullRefresh(state = swipeRefreshState)
     ) {
@@ -149,9 +150,12 @@ fun Matches(viewModel: MatchViewModel,navController: NavHostController,selectedW
                 Loading()
             }
         } else {
-            val groupedMatches = matches.groupBy { it.date }
-            groupedMatches.forEach { (date, matchesOnDate) ->
-                item {
+            item {
+                // Maçları tarihiyle gruplandır
+                val groupedMatches = matches.groupBy { it.date }
+                // Her tarihi ve maçlarını sırasıyla listele
+                groupedMatches.forEach { (date, matchesOnDate) ->
+                    // Tarih başlığını ekle
                     Text(
                         text = date,
                         textAlign = TextAlign.Center,
@@ -162,76 +166,81 @@ fun Matches(viewModel: MatchViewModel,navController: NavHostController,selectedW
                             .padding(8.dp)
                             .padding(top = 10.dp)
                     )
-                }
-                itemsIndexed(matchesOnDate) { index, match ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.Gray)
-                            .clickable {
-                                selectedWeek?.let { week ->
-                                    navController.navigate("match_detail/$week/$index")
+                    // Maçları tıklanabilir öğeler olarak ekle
+                    matchesOnDate.forEachIndexed { index, match ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.Gray)
+                                .clickable {
+                                    // Her maçın sıraya göre tıklanabilirliğini sağlayın
+                                    navController.navigate(
+                                        "match_detail/${week}/${
+                                            matches.indexOf(
+                                                match
+                                            )
+                                        }"
+                                    )
                                 }
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = match.time,
+                                color = Color.White,
+                                modifier = Modifier.weight(0.75f)
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(2f)
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(match.homeLogo),
+                                    contentDescription = match.homeTeam,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = match.homeTeam,
+                                    color = Color.White,
+                                    modifier = Modifier.weight(1.5f)
+                                )
                             }
-                            .padding(8.dp)
-                    ) {
-                        Text(
-                            text = match.time,
-                            color = Color.White,
-                            modifier = Modifier.weight(0.75f)
-                        )
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(2f)
-                        ) {
-                            Image(
-                                painter = rememberAsyncImagePainter(match.homeLogo),
-                                contentDescription = match.homeTeam,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = match.homeTeam,
-                                color = Color.White,
-                                modifier = Modifier.weight(1.5f)
-                            )
-                        }
-                        if (match.score == "0") {
-                            Text(
-                                "--",
-                                color = Color.White,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .align(Alignment.CenterVertically)
-                            )
-                        } else {
-                            Text(
-                                text = if (match.score == "1") "--" else match.score,
-                                color = if (match.score == "1") Color.Green else Color.White,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .weight(0.75f)
-                                    .align(Alignment.CenterVertically)
-                            )
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(2f)
-                        ) {
-                            Image(
-                                painter = rememberAsyncImagePainter(match.awayLogo),
-                                contentDescription = match.awayTeam,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = match.awayTeam,
-                                color = Color.White,
-                                modifier = Modifier.weight(1f)
-                            )
+                            if (match.score == "0") {
+                                Text(
+                                    "--",
+                                    color = Color.White,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+                                        .weight(0.5f)
+                                        .align(Alignment.CenterVertically)
+                                )
+                            } else {
+                                Text(
+                                    text = if (match.score == "1") "--" else match.score,
+                                    color = if (match.score == "1") Color.Green else Color.White,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+                                        .weight(0.75f)
+                                        .align(Alignment.CenterVertically)
+                                )
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(2f)
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(match.awayLogo),
+                                    contentDescription = match.awayTeam,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = match.awayTeam,
+                                    color = Color.White,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
                 }

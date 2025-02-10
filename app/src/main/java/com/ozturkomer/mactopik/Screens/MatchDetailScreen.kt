@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -30,7 +33,7 @@ import com.ozturkomer.mactopik.utils.MatchDetail
 import com.ozturkomer.mactopik.utils.Team
 
 @Composable
-fun MatchDetailScreen(navController:NavHostController, week: String, id: String) {
+fun MatchDetailScreen(navController:NavHostController, week: String, id: Int) {
     val viewModel = remember { MatchDetailViewModel(week, id) }
     val matchDetail = viewModel.details.collectAsState().value
     val isLoading = viewModel.isLoading.collectAsState().value
@@ -73,34 +76,77 @@ fun MatchDetailView(matchDetail: MatchDetail) {
 
 @Composable
 fun GoalsSection(title: String, matchDetail: MatchDetail) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = title, style = MaterialTheme.typography.h6, modifier = Modifier.padding(8.dp))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.h6,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            GoalList(matchDetail.goals[0], Modifier.weight(1f))
-            GoalList(matchDetail.goals[1], Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-fun GoalList( goals: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        goals.split("(F)", "(H)").filter { it.isNotBlank() }.forEach { goal ->
-            val parts = goal.split(",")
-            if (parts.size >= 2) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(text = parts[0].trim(), style = MaterialTheme.typography.body2, modifier = Modifier.weight(0.7f))
-                    Text(text = parts[1].trim(), style = MaterialTheme.typography.body2, modifier = Modifier.weight(0.3f))
+            if (matchDetail.goals.isNotEmpty()) {
+                GoalList(matchDetail.goals[0], Modifier.weight(1f))  // İlk takımın golleri
+                if (matchDetail.goals.size > 1) {
+                    GoalList(matchDetail.goals[1], Modifier.weight(1f))  // İkinci takımın golleri
                 }
-            } else {
-                Text(text = goal.trim(), modifier = Modifier.padding(4.dp))
             }
         }
     }
 }
+
+
+@Composable
+fun GoalList(goals: String, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.padding(2.dp),
+        elevation = 4.dp,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(3.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            goals.split("(F)", "(H)","(K)","(P)","(S)")
+                .filter { it.isNotBlank() }
+                .forEach { goal ->
+                    val parts = goal.split(",")
+                    if (parts.size >= 2) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = parts[0].trim(),
+                                style = MaterialTheme.typography.body1,
+                                modifier = Modifier.weight(0.7f)
+                            )
+                            Text(
+                                text = parts[1].trim(),
+                                style = MaterialTheme.typography.body2.copy(androidx.compose.ui.graphics.Color.Gray),
+                                modifier = Modifier.weight(0.3f)
+                            )
+                        }
+                        Divider(color = androidx.compose.ui.graphics.Color.LightGray, thickness = 0.5.dp)
+                    } else {
+                        Text(
+                            text = goal.trim(),
+                            modifier = Modifier.padding(4.dp),
+                            style = MaterialTheme.typography.body2
+                        )
+                    }
+                }
+        }
+    }
+}
+
 
 @Composable
 fun TeamLogo(team: Team) {

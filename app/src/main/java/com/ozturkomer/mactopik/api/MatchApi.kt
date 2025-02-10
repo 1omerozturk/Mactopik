@@ -17,6 +17,6 @@ interface MatchApi {
     @GET("get-matches/{week}/{id}")
     suspend fun getMatchDetail(
         @Path("week") week: String,
-        @Path("id") id: String,
+        @Path("id") id: Int,
     ): MatchDetail
 }

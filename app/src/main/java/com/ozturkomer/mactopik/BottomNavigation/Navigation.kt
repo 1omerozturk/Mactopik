@@ -19,11 +19,13 @@ fun Navigation(navController: NavHostController) {
         composable("main") { MainScreen(navController) }
         composable(
             route = "match_detail/{week}/{id}",
-            arguments = listOf(navArgument("week") { type = NavType.IntType },
+            arguments = listOf(
+                navArgument("week") { type = NavType.StringType },
                 navArgument("id") { type = NavType.IntType }
-            )) { backStackEntry ->
+            )
+        ) { backStackEntry ->
             val week = backStackEntry.arguments?.getString("week") ?: "23"
-            val id = backStackEntry.arguments?.getString("id") ?: "2"
+            val id = backStackEntry.arguments?.getInt("id") ?: 2
             MatchDetailScreen(navController, week, id)
         }
         composable(

@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class MatchDetailViewModel(week: String, id: String) : ViewModel() {
+class MatchDetailViewModel(week: String, id: Int) : ViewModel() {
     private val _details = MutableStateFlow<MatchDetail?>(null)
     val details: StateFlow<MatchDetail?> get() = _details
 
@@ -26,11 +26,11 @@ class MatchDetailViewModel(week: String, id: String) : ViewModel() {
         .create(MatchApi::class.java)
 
     init {
-        println("week: " + week + "\nid: " + id)
-        fetchMatchDetail(week, id) // Varsayılan değerler kullanıldı
+        println(week+"  "+id)
+        fetchMatchDetail(week, id)
     }
 
-    fun fetchMatchDetail(week: String, id: String) {
+    fun fetchMatchDetail(week: String, id: Int) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true

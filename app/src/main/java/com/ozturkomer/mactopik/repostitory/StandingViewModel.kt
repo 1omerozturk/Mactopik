@@ -2,7 +2,6 @@ package com.ozturkomer.mactopik.repostitory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ozturkomer.mactopik.api.MatchApi
 import com.ozturkomer.mactopik.api.StandingsApi
 import com.ozturkomer.mactopik.utils.Standing
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +34,6 @@ class StandingsViewModel : ViewModel() {
                 _isLoading.value=true;
                 val response = api.getStandings()
                 _standings.value = response.standings
-                println(response.standings)
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
