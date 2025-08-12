@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -77,7 +78,11 @@ fun TopScoresScreen(viewModel: TopScorerViewModel = viewModel()) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (isLoading) {
            Loading()
-        } else {
+        }
+        else if(scorers.size==0){
+            Text("Gol Krallığı bilgileri çok yakında ...", color = Color(0xFF4527A0), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, fontStyle = FontStyle.Italic )
+        }
+        else {
             LazyColumn(
                 modifier = Modifier.
                 fillMaxSize()

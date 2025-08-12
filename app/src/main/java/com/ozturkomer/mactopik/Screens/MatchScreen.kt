@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -62,7 +63,7 @@ fun WeekInput(onWeekSelected: (String) -> Unit) {
     val context = LocalContext.current
 
     var selectedNumber by remember { mutableStateOf("Hafta Seç") }
-    val numberOptions = (1..34).map { it.toString() }
+    val numberOptions = (1..38).map { it.toString() }
 
     Column(
         modifier = Modifier
@@ -101,22 +102,24 @@ fun WeekInput(onWeekSelected: (String) -> Unit) {
                 Text(text = selectedNumber, color = Color.Black)
             }
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                numberOptions.forEach { number ->
-                    DropdownMenuItem(
-                        text = { Text(text = number + ". Hafta") },
-                        onClick = {
-                            selectedNumber = number
-                            expanded = false
-                            Toast.makeText(context, "$number. Hafta", Toast.LENGTH_SHORT).show()
-                            onWeekSelected(number)
-                        }
-                    )
+                DropdownMenu(
+                    modifier = Modifier.fillMaxHeight(0.5f),
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    numberOptions.forEach { number ->
+                        DropdownMenuItem(
+                            text = { Text(text = number + ". Hafta") },
+                            onClick = {
+                                selectedNumber = number
+                                expanded = false
+                                Toast.makeText(context, "$number. Hafta", Toast.LENGTH_SHORT).show()
+                                onWeekSelected(number)
+                            }
+                        )
+                    }
                 }
-            }
+
         }
     }
 }
@@ -208,7 +211,7 @@ fun Matches(viewModel: MatchViewModel, navController: NavHostController) {
                             }
                             if (match.score == "0") {
                                 Text(
-                                    "--",
+                                    " - ",
                                     color = Color.White,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
@@ -248,28 +251,6 @@ fun Matches(viewModel: MatchViewModel, navController: NavHostController) {
         }
     }
 
-    // Show MatchSimulation component if showSimulation is true
-    if (showSimulation && selectedMatch != null) {
-        MatchSimulation(
-            homeTeam = selectedMatch!!.homeTeam,
-            awayTeam = selectedMatch!!.awayTeam,
-            isOpen = showSimulation,
-            onClose = { showSimulation = false },
-            onSimulationEnd = { handleSimulationEnd(it) }
-        )
-    }
-
-}
-
-@Composable
-fun MatchSimulation(
-    homeTeam: String,
-    awayTeam: String,
-    isOpen: Boolean,
-    onClose: () -> Unit,
-    onSimulationEnd: (String) -> Unit
-) {
-    // Your MatchSimulation implementation here
 }
 
 data class Match(

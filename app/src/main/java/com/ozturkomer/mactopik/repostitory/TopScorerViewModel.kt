@@ -20,7 +20,7 @@ class TopScorerViewModel : ViewModel() {
 
     private val api = Retrofit.Builder()
         .baseUrl("https://superlig-api.onrender.com/")
-//        .baseUrl("http://192.168.137.1:5080/")
+//        .baseUrl("http://192.168.1.102:5080/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(ScorerApi::class.java)
